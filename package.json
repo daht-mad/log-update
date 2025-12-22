@@ -1,10 +1,10 @@
 {
-  "name": "log-update",
+  "name": "@daht-mad/log-update",
   "version": "1.0.0",
   "description": "클로드 코드와의 대화 내역을 자동으로 마크다운 문서로 변환하는 도구",
-  "main": "dist/log.js",
+  "main": "dist/log-update.js",
   "bin": {
-    "log-update": "./bin/log.js"
+    "dahtmad-log-update": "./bin/log-update.js"
   },
   "scripts": {
     "build": "tsc",

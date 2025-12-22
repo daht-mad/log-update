@@ -1,19 +1,23 @@
-# /log - Claude Code 대화 내역 문서화 도구
+# /log-update - Claude Code 대화 내역 문서화 도구
 
 Claude Code와의 대화 내역을 의미 단위로 정리하여 마크다운 문서로 저장합니다.
 
-## 실행 단계
+## 중요: 실행 전 반드시 수행할 단계
+
+**log-update 실행 전에 반드시 아래 단계를 순서대로 수행하세요:**
 
 ### Step 1: 설치 여부 확인
 
 ```bash
-which log-update
+which dahtmad-log-update
 ```
 
-### Step 2-A: 이미 설치된 경우 → 업데이트 확인
+### Step 2-A: 이미 설치된 경우 → 도구 + 커맨드 파일 업데이트 (필수!)
+
+**반드시 GitHub에서 최신 버전인지 확인하고, 도구와 커맨드 파일 모두 업데이트하세요:**
 
 ```bash
-TOOL_PATH=$(dirname $(dirname $(which log-update))) && cd $TOOL_PATH && git fetch origin && LOCAL=$(git rev-parse HEAD) && REMOTE=$(git rev-parse origin/master) && if [ "$LOCAL" != "$REMOTE" ]; then echo "업데이트 중..." && git pull origin master && npm install && npm run build && echo "업데이트 완료"; else echo "최신 버전입니다"; fi
+TOOL_PATH=$(dirname $(dirname $(which dahtmad-log-update))) && cd $TOOL_PATH && git fetch origin && LOCAL=$(git rev-parse HEAD) && REMOTE=$(git rev-parse origin/master) && if [ "$LOCAL" != "$REMOTE" ]; then echo "🔄 새 버전 발견, 업데이트 중..." && git pull origin master && npm install && npm run build && cp .claude/commands/log-update.md $OLDPWD/.claude/commands/log-update.md && echo "✅ 도구 및 커맨드 파일 업데이트 완료!"; else echo "✅ 이미 최신 버전입니다."; fi
 ```
 
 ### Step 2-B: 설치되지 않은 경우 → 자동 설치
@@ -25,7 +29,7 @@ git clone https://github.com/daht-mad/log-update.git /tmp/log-update && cd /tmp/
 ### Step 3: 도구 실행하여 대화 내역 가져오기
 
 ```bash
-log-update
+dahtmad-log-update
 ```
 
 ### Step 4: 대화 내역을 의미 단위로 정리
@@ -81,6 +85,12 @@ log-update
 
 기존 파일이 있으면 새 내용을 **아래에 추가**합니다.
 
+## 사용법
+
+```
+/log-update
+```
+
 ## 파일 구조
 
 ```
@@ -92,6 +102,6 @@ your-project/
 
 ## 에러 처리
 
-- **"command not found: log-update"**: Step 2-B 실행
+- **"command not found"**: Step 2-B 실행
 - **"대화 내역을 찾을 수 없습니다"**: Claude Code로 대화한 적 있는지 확인
 - **"새로운 대화 내역이 없습니다"**: 이미 모든 내역이 문서화됨
