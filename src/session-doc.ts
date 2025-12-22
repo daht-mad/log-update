@@ -229,53 +229,103 @@ function groupIntoSections(messages: Message[]): DocumentSection[] {
 }
 
 /**
- * 마크다운 문서를 생성합니다
+ * 작업 내용을 비개발자가 이해할 수 있는 수준으로 요약합니다
+ */
+function summarizeWorkflow(section: DocumentSection): string {
+  const tools = section.toolCalls || [];
+  const uniqueTools = [...new Set(tools)];
+
+  const workItems: string[] = [];
+
+  // 도구 사용 패턴을 분석해서 작업 내용 추론
+  if (uniqueTools.includes('Read') || uniqueTools.includes('Glob') || uniqueTools.includes('Grep')) {
+    workItems.push('코드/파일 분석');
+  }
+  if (uniqueTools.includes('Write') || uniqueTools.includes('Edit')) {
+    workItems.push('파일 생성/수정');
+  }
+  if (uniqueTools.includes('Bash')) {
+    workItems.push('명령어 실행');
+  }
+  if (uniqueTools.includes('WebFetch') || uniqueTools.includes('WebSearch')) {
+    workItems.push('웹 검색/조회');
+  }
+  if (uniqueTools.includes('Task')) {
+    workItems.push('하위 작업 수행');
+  }
+
+  if (workItems.length === 0 && section.assistantSummary) {
+    return section.assistantSummary;
+  }
+
+  return workItems.join(', ');
+}
+
+/**
+ * 마크다운 문서를 생성합니다 (LOG.md 스타일)
  */
 function generateMarkdown(sections: DocumentSection[], projectPath: string): string {
   const date = new Date().toISOString().split('T')[0];
-  let md = `# Claude Code 세션 기록\n\n`;
-  md += `**프로젝트**: ${projectPath}\n`;
-  md += `**생성일**: ${date}\n`;
-  md += `**세션 수**: ${sections.length}\n\n`;
-  md += `---\n\n`;
+  let md = `# 작업 로그\n\n`;
+  md += `## ${date}: 세션 기록\n\n`;
 
   for (let i = 0; i < sections.length; i++) {
     const section = sections[i];
-    const time = new Date(section.timestamp).toLocaleString('ko-KR');
 
-    md += `## 세션 ${i + 1}\n\n`;
-    md += `**시간**: ${time}\n\n`;
+    md += `### ${i + 1}. ${getTaskTitle(section)}\n\n`;
 
     if (section.userCommand) {
-      md += `### 사용자 명령어\n\n`;
+      md += `**사용자 명령:**\n`;
       md += `\`\`\`\n${section.userCommand}\n\`\`\`\n\n`;
     }
 
-    if (section.assistantSummary) {
-      md += `### Claude 작업 요약\n\n`;
-      md += `${section.assistantSummary}\n\n`;
+    md += `**Claude Code 작업 내용:**\n\n`;
+    const workflow = summarizeWorkflow(section);
+    if (workflow) {
+      md += `- ${workflow}\n`;
     }
+    if (section.assistantSummary) {
+      md += `- ${section.assistantSummary}\n`;
+    }
+    md += `\n`;
 
-    if (section.toolCalls && section.toolCalls.length > 0) {
-      md += `### 사용된 도구\n\n`;
-      const uniqueTools = [...new Set(section.toolCalls)];
-      for (const tool of uniqueTools) {
-        md += `- ${tool}\n`;
+    // 에러가 있으면 시행착오 및 배운 점 섹션 추가
+    if (section.errors && section.errors.length > 0) {
+      md += `**시행착오:**\n\n`;
+      for (const error of section.errors) {
+        // 에러 메시지를 간략하게 정리
+        const shortError = error.length > 200 ? error.substring(0, 200) + '...' : error;
+        md += `- ${shortError}\n`;
       }
       md += `\n`;
-    }
 
-    if (section.errors && section.errors.length > 0) {
-      md += `### 에러 및 시행착오\n\n`;
-      for (const error of section.errors) {
-        md += `\`\`\`\n${error}\n\`\`\`\n\n`;
-      }
+      md += `**배운 점:**\n`;
+      md += `- (시행착오를 통해 배운 내용을 여기에 정리)\n\n`;
     }
 
     md += `---\n\n`;
   }
 
   return md;
+}
+
+/**
+ * 사용자 명령어에서 작업 제목을 추출합니다
+ */
+function getTaskTitle(section: DocumentSection): string {
+  if (!section.userCommand) {
+    return '작업';
+  }
+
+  const cmd = section.userCommand.trim();
+
+  // 첫 줄만 사용하고 너무 길면 자르기
+  const firstLine = cmd.split('\n')[0];
+  if (firstLine.length > 50) {
+    return firstLine.substring(0, 47) + '...';
+  }
+
+  return firstLine || '작업';
 }
 
 /**
