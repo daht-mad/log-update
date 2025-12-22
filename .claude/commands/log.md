@@ -1,4 +1,4 @@
-# /session-doc - Claude Code 대화 내역 문서화 도구
+# /log - Claude Code 대화 내역 문서화 도구
 
 Claude Code와의 대화 내역을 의미 단위로 정리하여 마크다운 문서로 저장합니다.
 
@@ -7,25 +7,25 @@ Claude Code와의 대화 내역을 의미 단위로 정리하여 마크다운 �
 ### Step 1: 설치 여부 확인
 
 ```bash
-which session-doc
+which claude-log
 ```
 
 ### Step 2-A: 이미 설치된 경우 → 업데이트 확인
 
 ```bash
-TOOL_PATH=$(dirname $(dirname $(which session-doc))) && cd $TOOL_PATH && git fetch origin && LOCAL=$(git rev-parse HEAD) && REMOTE=$(git rev-parse origin/master) && if [ "$LOCAL" != "$REMOTE" ]; then echo "업데이트 중..." && git pull origin master && npm install && npm run build && echo "업데이트 완료"; else echo "최신 버전입니다"; fi
+TOOL_PATH=$(dirname $(dirname $(which claude-log))) && cd $TOOL_PATH && git fetch origin && LOCAL=$(git rev-parse HEAD) && REMOTE=$(git rev-parse origin/master) && if [ "$LOCAL" != "$REMOTE" ]; then echo "업데이트 중..." && git pull origin master && npm install && npm run build && echo "업데이트 완료"; else echo "최신 버전입니다"; fi
 ```
 
 ### Step 2-B: 설치되지 않은 경우 → 자동 설치
 
 ```bash
-git clone https://github.com/daht-mad/session-doc.git /tmp/session-doc && cd /tmp/session-doc && npm install && npm run build && npm link
+git clone https://github.com/daht-mad/claude-log.git /tmp/claude-log && cd /tmp/claude-log && npm install && npm run build && npm link
 ```
 
 ### Step 3: 도구 실행하여 대화 내역 가져오기
 
 ```bash
-session-doc
+claude-log
 ```
 
 ### Step 4: 대화 내역을 의미 단위로 정리
@@ -77,7 +77,7 @@ session-doc
 
 ### Step 5: 파일 저장
 
-정리한 내용을 `docs/session-YYYY-MM-DD.md` 파일에 저장합니다.
+정리한 내용을 `docs/log-YYYY-MM-DD.md` 파일에 저장합니다.
 
 기존 파일이 있으면 새 내용을 **아래에 추가**합니다.
 
@@ -86,12 +86,12 @@ session-doc
 ```
 your-project/
 ├── docs/
-│   └── session-2025-12-22.md    # 생성된 문서
-└── .session-doc-state.json      # 상태 추적 파일
+│   └── log-2025-12-22.md    # 생성된 문서
+└── .log-state.json          # 상태 추적 파일
 ```
 
 ## 에러 처리
 
-- **"command not found: session-doc"**: Step 2-B 실행
+- **"command not found: claude-log"**: Step 2-B 실행
 - **"대화 내역을 찾을 수 없습니다"**: Claude Code로 대화한 적 있는지 확인
 - **"새로운 대화 내역이 없습니다"**: 이미 모든 내역이 문서화됨

@@ -27,7 +27,7 @@ interface Session {
 }
 
 const CLAUDE_HOME = path.join(os.homedir(), '.claude');
-const STATE_FILE = '.session-doc-state.json';
+const STATE_FILE = '.log-state.json';
 
 /**
  * 현재 프로젝트의 대화 세션 파일 경로를 찾습니다
@@ -110,15 +110,15 @@ function isNoiseMessage(text: string): boolean {
   if (!text || text.length === 0) return true;
 
   const noisePatterns = [
-    /^#\s*\/session-doc/,
+    /^#\s*\/log/,
     /^#\s*\/[\w-]+\s*-/,
     /^\[Request interrupted/,
     /^Caveat: The messages below/,
     /^<command-/,
     /^<local-command/,
     /^mkdir -p \.claude\/commands/,
-    /^git clone.*session-doc/,
-    /^TOOL_PATH=.*session-doc/,
+    /^git clone.*claude-log/,
+    /^TOOL_PATH=.*claude-log/,
   ];
 
   return noisePatterns.some(pattern => pattern.test(text.trim()));

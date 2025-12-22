@@ -1,17 +1,17 @@
 {
-  "name": "session-doc",
+  "name": "claude-log",
   "version": "1.0.0",
   "description": "클로드 코드와의 대화 내역을 자동으로 마크다운 문서로 변환하는 도구",
-  "main": "dist/session-doc.js",
+  "main": "dist/log.js",
   "bin": {
-    "session-doc": "./bin/session-doc.js"
+    "claude-log": "./bin/log.js"
   },
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
     "prepublish": "npm run build"
   },
-  "keywords": ["claude-code", "documentation", "session", "markdown", "automation"],
+  "keywords": ["claude-code", "documentation", "log", "markdown", "automation"],
   "author": "daht-mad",
   "license": "MIT",
   "devDependencies": {
