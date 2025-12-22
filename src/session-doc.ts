@@ -314,85 +314,24 @@ function groupIntoSessions(messages: Message[]): Session[] {
 }
 
 /**
- * 세션 제목을 생성합니다
+ * 원시 대화 데이터를 JSON 형식으로 출력합니다
  */
-function generateSessionTitle(session: Session): string {
-  const firstRequest = session.userRequests[0] || '';
+function outputRawData(sessions: Session[]): void {
+  const rawData = sessions.map((session, index) => ({
+    index: index + 1,
+    timestamp: session.timestamp,
+    userRequests: session.userRequests,
+    toolsUsed: [...new Set(session.toolsUsed)],
+    filesModified: [...new Set(session.filesModified)],
+    errors: [...new Set(session.errors)],
+    claudeResponse: session.claudeActions.length > 0
+      ? session.claudeActions[session.claudeActions.length - 1]
+      : null,
+  }));
 
-  // 첫 50자까지만 사용하고, 줄바꿈 제거
-  let title = firstRequest.split('\n')[0].trim();
-  if (title.length > 50) {
-    title = title.substring(0, 47) + '...';
-  }
-
-  return title || '작업';
-}
-
-/**
- * 마크다운 문서를 생성합니다
- */
-function generateMarkdown(sessions: Session[], startIndex: number): string {
-  const today = new Date().toISOString().split('T')[0];
-
-  let markdown = `# Claude Code 작업 기록
-
-> 이 문서는 Claude Code와의 대화 내역을 자동으로 정리한 것입니다.
-
-## ${today}
-
-`;
-
-  let sessionNum = startIndex;
-
-  for (const session of sessions) {
-    const title = generateSessionTitle(session);
-
-    markdown += `### ${sessionNum}. ${title}\n\n`;
-
-    // 사용자 요청
-    if (session.userRequests.length > 0) {
-      markdown += `**사용자 요청:**\n`;
-      for (const request of session.userRequests) {
-        markdown += `\`\`\`\n${request}\n\`\`\`\n\n`;
-      }
-    }
-
-    // 수행된 작업
-    const uniqueTools = [...new Set(session.toolsUsed)];
-    const uniqueFiles = [...new Set(session.filesModified)];
-    const actions = translateToolUsage(uniqueTools, uniqueFiles);
-
-    if (actions.length > 0) {
-      markdown += `**수행된 작업:**\n`;
-      for (const action of actions) {
-        markdown += `- ${action}\n`;
-      }
-      markdown += '\n';
-    }
-
-    // 시행착오 (에러가 있는 경우)
-    const uniqueErrors = [...new Set(session.errors)];
-    if (uniqueErrors.length > 0) {
-      markdown += `**시행착오:**\n`;
-      for (const error of uniqueErrors) {
-        markdown += `- ${error.split('\n')[0]}\n`;
-      }
-      markdown += '\n';
-    }
-
-    // 결과 (Claude의 마지막 응답에서 추출)
-    if (session.claudeActions.length > 0) {
-      const lastAction = session.claudeActions[session.claudeActions.length - 1];
-      if (lastAction && lastAction.length > 20) {
-        markdown += `**결과:**\n${lastAction.split('\n')[0]}\n\n`;
-      }
-    }
-
-    markdown += `---\n\n`;
-    sessionNum++;
-  }
-
-  return markdown;
+  console.log('\n=== RAW_SESSION_DATA_START ===');
+  console.log(JSON.stringify(rawData, null, 2));
+  console.log('=== RAW_SESSION_DATA_END ===');
 }
 
 /**
@@ -475,98 +414,12 @@ export async function main(_args: string[]): Promise<void> {
     process.exit(0);
   }
 
-  // 마크다운 생성
-  const today = new Date().toISOString().split('T')[0];
-  const docDir = path.join(projectPath, 'docs');
-  const docFile = path.join(docDir, `session-${today}.md`);
-
-  // docs 디렉토리 생성
-  if (!fs.existsSync(docDir)) {
-    fs.mkdirSync(docDir, { recursive: true });
-  }
-
-  // 기존 파일이 있으면 추가, 없으면 새로 생성
-  let startIndex = 1;
-  if (fs.existsSync(docFile)) {
-    console.log(`ℹ️ 기존 문서에 내용을 추가합니다: session-${today}.md`);
-    startIndex = previousTotal + 1;
-
-    // 기존 내용 읽기
-    const existingContent = fs.readFileSync(docFile, 'utf-8');
-
-    // 새 세션만 추가
-    let newSessions = '';
-    let sessionNum = startIndex;
-
-    for (const session of sessions) {
-      const title = generateSessionTitle(session);
-
-      newSessions += `### ${sessionNum}. ${title}\n\n`;
-
-      if (session.userRequests.length > 0) {
-        newSessions += `**사용자 요청:**\n`;
-        for (const request of session.userRequests) {
-          newSessions += `\`\`\`\n${request}\n\`\`\`\n\n`;
-        }
-      }
-
-      const uniqueTools = [...new Set(session.toolsUsed)];
-      const uniqueFiles = [...new Set(session.filesModified)];
-      const actions = translateToolUsage(uniqueTools, uniqueFiles);
-
-      if (actions.length > 0) {
-        newSessions += `**수행된 작업:**\n`;
-        for (const action of actions) {
-          newSessions += `- ${action}\n`;
-        }
-        newSessions += '\n';
-      }
-
-      const uniqueErrors = [...new Set(session.errors)];
-      if (uniqueErrors.length > 0) {
-        newSessions += `**시행착오:**\n`;
-        for (const error of uniqueErrors) {
-          newSessions += `- ${error.split('\n')[0]}\n`;
-        }
-        newSessions += '\n';
-      }
-
-      if (session.claudeActions.length > 0) {
-        const lastAction = session.claudeActions[session.claudeActions.length - 1];
-        if (lastAction && lastAction.length > 20) {
-          newSessions += `**결과:**\n${lastAction.split('\n')[0]}\n\n`;
-        }
-      }
-
-      newSessions += `---\n\n`;
-      sessionNum++;
-    }
-
-    // 기존 내용 뒤에 추가
-    fs.writeFileSync(docFile, existingContent + '\n' + newSessions);
-  } else {
-    // 새 파일 생성
-    const markdown = generateMarkdown(sessions, startIndex);
-    fs.writeFileSync(docFile, markdown);
-  }
-
-  console.log(`✅ 문서가 생성되었습니다: session-${today}.md`);
-
-  // 상태 업데이트
-  const latestTimestamp = allMessages[allMessages.length - 1]?.timestamp || new Date().toISOString();
-  const newTotal = previousTotal + sessions.length;
-
-  const newState: StateTracker = {
-    lastProcessedTimestamp: latestTimestamp,
-    totalSessions: newTotal,
-  };
-  saveState(projectPath, newState);
+  // 원시 데이터 출력 (Claude가 후처리할 수 있도록)
+  outputRawData(sessions);
 
   console.log(`\n📊 통계:`);
-  console.log(`   - 처리된 세션: ${sessions.length}개`);
-  console.log(`   - 총 누적 세션: ${newTotal}개`);
-  console.log(`   - 저장 위치: docs/session-${today}.md`);
-  console.log('\n✨ 완료!');
+  console.log(`   - 추출된 세션: ${sessions.length}개`);
+  console.log('\n✨ 데이터 추출 완료! Claude가 이 데이터를 분석하여 문서를 생성합니다.');
 }
 
 // CLI 진입점
