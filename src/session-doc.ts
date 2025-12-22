@@ -306,7 +306,7 @@ function generateMarkdown(sections: DocumentSection[], projectPath: string): str
     }
     md += `\n`;
 
-    // 에러가 있으면 시행착오 및 배운 점 섹션 추가
+    // 에러가 있으면 시행착오 섹션 추가
     if (section.errors && section.errors.length > 0) {
       md += `**시행착오:**\n\n`;
       for (const error of section.errors) {
@@ -315,10 +315,11 @@ function generateMarkdown(sections: DocumentSection[], projectPath: string): str
         md += `- ${shortError}\n`;
       }
       md += `\n`;
-
-      md += `**배운 점:**\n`;
-      md += `- (시행착오를 통해 배운 내용을 여기에 정리)\n\n`;
     }
+
+    // 배운 점은 항상 표시 (사용자가 직접 채워넣을 수 있도록)
+    md += `**배운 점:**\n`;
+    md += `- \n\n`;
 
     md += `---\n\n`;
   }
