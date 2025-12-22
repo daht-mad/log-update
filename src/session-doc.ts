@@ -83,6 +83,26 @@ function readMessages(filePath: string, lastTimestamp?: string): Message[] {
 }
 
 /**
+ * 시스템 태그를 제거합니다 (ide_opened_file, ide_selection, system-reminder 등)
+ */
+function removeSystemTags(text: string): string {
+  // XML 스타일 시스템 태그 제거
+  const patterns = [
+    /<ide_opened_file>[\s\S]*?<\/ide_opened_file>/g,
+    /<ide_selection>[\s\S]*?<\/ide_selection>/g,
+    /<system-reminder>[\s\S]*?<\/system-reminder>/g,
+    /<user-prompt-submit-hook>[\s\S]*?<\/user-prompt-submit-hook>/g,
+  ];
+
+  let cleaned = text;
+  for (const pattern of patterns) {
+    cleaned = cleaned.replace(pattern, '');
+  }
+
+  return cleaned.trim();
+}
+
+/**
  * 사용자 명령어를 추출합니다
  */
 function extractUserCommand(message: Message): string | undefined {
@@ -90,7 +110,7 @@ function extractUserCommand(message: Message): string | undefined {
     const content = message.message?.content || message.content;
 
     if (typeof content === 'string') {
-      return content;
+      return removeSystemTags(content);
     }
 
     if (Array.isArray(content)) {
@@ -101,7 +121,7 @@ function extractUserCommand(message: Message): string | undefined {
         .join('\n');
 
       if (textContent.trim()) {
-        return textContent;
+        return removeSystemTags(textContent);
       }
     }
   }
