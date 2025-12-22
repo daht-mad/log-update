@@ -22,7 +22,13 @@ mkdir -p .claude/commands && curl -o .claude/commands/log.md https://raw.githubu
 /log
 ```
 
-### 방법 2: 직접 설치
+### 방법 2: Antigravity (Google AI IDE) 설치
+
+```bash
+mkdir -p .agent/rules && curl -o .agent/rules/log-update.md https://raw.githubusercontent.com/daht-mad/log-update/master/.agent/rules/log-update.md
+```
+
+### 방법 3: 직접 설치
 
 ```bash
 git clone https://github.com/daht-mad/log-update.git
