@@ -1,10 +1,8 @@
 # /session-doc - Claude Code 대화 내역 문서화 도구
 
-Claude Code와의 대화 내역을 자동으로 마크다운 문서로 변환합니다.
+Claude Code와의 대화 내역을 의미 단위로 정리하여 마크다운 문서로 저장합니다.
 
-## ⚠️ 중요: 실행 전 반드시 수행할 단계
-
-**session-doc 실행 전에 반드시 아래 단계를 순서대로 수행하세요:**
+## 실행 단계
 
 ### Step 1: 설치 여부 확인
 
@@ -12,12 +10,10 @@ Claude Code와의 대화 내역을 자동으로 마크다운 문서로 변환합
 which session-doc
 ```
 
-### Step 2-A: 이미 설치된 경우 → 업데이트 확인 (필수!)
-
-**반드시 GitHub에서 최신 버전인지 확인하고 업데이트하세요:**
+### Step 2-A: 이미 설치된 경우 → 업데이트 확인
 
 ```bash
-TOOL_PATH=$(dirname $(dirname $(which session-doc))) && cd $TOOL_PATH && git fetch origin && LOCAL=$(git rev-parse HEAD) && REMOTE=$(git rev-parse origin/master) && if [ "$LOCAL" != "$REMOTE" ]; then echo "🔄 새 버전 발견, 업데이트 중..." && git pull origin master && npm install && npm run build && echo "✅ 업데이트 완료!"; else echo "✅ 이미 최신 버전입니다."; fi
+TOOL_PATH=$(dirname $(dirname $(which session-doc))) && cd $TOOL_PATH && git fetch origin && LOCAL=$(git rev-parse HEAD) && REMOTE=$(git rev-parse origin/master) && if [ "$LOCAL" != "$REMOTE" ]; then echo "업데이트 중..." && git pull origin master && npm install && npm run build && echo "업데이트 완료"; else echo "최신 버전입니다"; fi
 ```
 
 ### Step 2-B: 설치되지 않은 경우 → 자동 설치
@@ -26,85 +22,64 @@ TOOL_PATH=$(dirname $(dirname $(which session-doc))) && cd $TOOL_PATH && git fet
 git clone https://github.com/daht-mad/session-doc.git /tmp/session-doc && cd /tmp/session-doc && npm install && npm run build && npm link
 ```
 
-### Step 3: 도구 실행
+### Step 3: 도구 실행하여 대화 내역 가져오기
 
 ```bash
 session-doc
 ```
 
-## 사용법
+### Step 4: 대화 내역을 의미 단위로 정리
 
-```
-/session-doc
-```
+도구가 출력한 대화 내역을 분석하여 **의미 단위로 묶어서** 문서를 작성합니다.
 
-## 주요 기능
+#### 정리 규칙
 
-- **자동 파싱**: Claude Code의 JSONL 대화 내역을 자동으로 읽어옵니다
-- **증분 업데이트**: 한 번 문서화한 후에는 새로운 내용만 추가합니다
-- **구조화된 문서**: 사용자 명령어, Claude 작업 요약, 에러 내역을 체계적으로 정리합니다
-- **프로젝트별 관리**: 각 프로젝트의 대화 내역을 독립적으로 관리합니다
+1. **의미 단위로 그룹화**: 연관된 대화들을 하나의 작업으로 묶습니다
+   - 예: "API 만들어줘" → "수정해줘" → "테스트해봐" = 하나의 "API 구현" 작업
+   - 새로운 주제가 시작되면 새 작업으로 분리
 
-## 출력 예시
+2. **작업 제목**: 해당 작업의 핵심을 설명하는 짧은 제목
+   - 좋은 예: "결제 API 엔드포인트 구현", "로그인 버그 수정"
+   - 나쁜 예: "수정해줘", "했어"
+
+3. **비개발자 친화적 표현**: 기술 용어를 쉽게 풀어서 설명
+   - Write/Edit → "파일 생성/수정"
+   - Bash(npm run build) → "프로젝트 빌드"
+   - git commit → "변경사항 저장"
+
+4. **파일명 포함**: 수정된 파일명을 명시 (3개 초과시 "외 N개")
+
+#### 출력 형식
 
 ```markdown
-# Claude Code 세션 기록
+# Claude Code 작업 기록
 
-**생성일**: 2025-12-22
-**총 작업 수**: 15개
+> 이 문서는 Claude Code와의 대화 내역을 자동으로 정리한 것입니다.
 
----
+## YYYY-MM-DD
 
-## 작업 1
+### 1. 작업 제목 (핵심을 설명하는 짧은 문장)
 
-**시간**: 2025. 12. 22. 오후 6:30:00
+**수행된 작업:**
+- 파일 확인: config.ts, index.ts
+- 파일 수정: api.ts, routes.ts
+- 프로젝트 빌드
 
-### 요청 내용
-
-AI 도구 만들어줘
-
-### 작업 결과
-
-비개발자도 쉽게 사용할 수 있는 AI 도구를 만들었습니다.
-질문에 답하면 자동으로 맞춤형 도구가 생성됩니다.
+**결과:**
+작업 결과를 1-2문장으로 요약
 
 ---
+
+### 2. 다음 작업 제목
+
+...
 ```
 
-## 에러 처리
+### Step 5: 파일 저장
 
-### 도구가 설치되지 않은 경우
-```
-❌ session-doc 명령어를 찾을 수 없습니다.
+정리한 내용을 `docs/session-YYYY-MM-DD.md` 파일에 저장합니다.
 
-다음 명령어로 설치해주세요:
-
-git clone https://github.com/daht-mad/session-doc.git /tmp/session-doc
-cd /tmp/session-doc
-npm install
-npm run build
-npm link
-```
-
-### 대화 내역이 없는 경우
-```
-❌ 대화 내역을 찾을 수 없습니다.
-   Claude Code로 이 프로젝트에서 대화를 나눈 적이 있는지 확인하세요.
-```
-
-### 새로운 내역이 없는 경우
-```
-ℹ️ 새로운 대화 내역이 없습니다.
-```
-
-## 작동 원리
-
-1. `~/.claude/projects/` 디렉토리에서 현재 프로젝트의 대화 내역 파일(.jsonl)을 찾습니다
-2. JSONL 파일을 파싱하여 사용자 명령어, Claude의 응답, 도구 사용, 에러 정보를 추출합니다
-3. 타임스탬프를 기준으로 대화를 시간순으로 정렬합니다
-4. 마크다운 형식으로 구조화된 문서를 생성합니다
-5. `docs/session-YYYY-MM-DD.md` 파일로 저장합니다
-6. `.session-doc-state.json` 파일에 마지막 처리 시점을 기록하여 다음 실행 시 증분 업데이트를 지원합니다
+기존 파일이 있으면 새 내용을 **아래에 추가**합니다.
 
 ## 파일 구조
 
@@ -112,54 +87,11 @@ npm link
 your-project/
 ├── docs/
 │   └── session-2025-12-22.md    # 생성된 문서
-└── .session-doc-state.json      # 상태 추적 파일 (gitignore에 추가 권장)
+└── .session-doc-state.json      # 상태 추적 파일
 ```
 
-## 사용 시나리오
+## 에러 처리
 
-### 시나리오 1: 첫 실행
-
-```
-$ session-doc
-📝 Claude Code 세션 문서화 도구
-
-✅ 문서가 생성되었습니다: docs/session-2025-12-22.md
-   12개의 작업이 기록되었습니다.
-
-✨ 완료!
-```
-
-### 시나리오 2: 추가 실행
-
-```
-$ session-doc
-📝 Claude Code 세션 문서화 도구
-
-✅ 문서가 업데이트되었습니다: docs/session-2025-12-22.md
-   3개의 새 작업이 추가되었습니다. (총 15개)
-
-✨ 완료!
-```
-
-## 문제 해결
-
-**"command not found: session-doc"**
-→ Node.js 설치 확인: `node --version`
-→ npm link 재실행: `cd /path/to/session-doc && npm link`
-
-**"Permission denied"**
-→ 실행: `sudo npm link`
-
-**"Module not found"**
-→ 도구 디렉토리에서 실행: `npm install`
-
-**"Build failed"**
-→ Node.js 버전 확인 (18+ 필요)
-→ TypeScript 설치: `npm install -g typescript`
-
-## 팁
-
-- 정기적으로 실행하여 작업 내역을 문서화하세요
-- Git에 커밋하기 전에 실행하면 변경사항을 추적하기 좋습니다
-- `docs/` 디렉토리를 Git에 포함시켜 팀원과 공유할 수 있습니다
-- `.session-doc-state.json`은 `.gitignore`에 추가하는 것을 권장합니다
+- **"command not found: session-doc"**: Step 2-B 실행
+- **"대화 내역을 찾을 수 없습니다"**: Claude Code로 대화한 적 있는지 확인
+- **"새로운 대화 내역이 없습니다"**: 이미 모든 내역이 문서화됨
