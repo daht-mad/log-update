@@ -15,37 +15,66 @@ Claude Code와의 대화 내역을 자동으로 마크다운 문서로 변환합
 - **구조화된 문서**: 사용자 명령어, Claude 작업 요약, 에러 내역을 체계적으로 정리합니다
 - **프로젝트별 관리**: 각 프로젝트의 대화 내역을 독립적으로 관리합니다
 
-## 설치 확인 및 자동 설치
+## 설치 확인 및 자동 업데이트
 
-1. 설치 여부 확인:
-   ```bash
-   which session-doc
-   ```
+### 1. 설치 여부 확인
 
-2. 설치되지 않았으면 자동 설치:
-   ```bash
-   git clone https://github.com/daht-mad/session-doc.git /tmp/session-doc
-   cd /tmp/session-doc
-   npm install
-   npm run build
-   npm link
-   ```
+```bash
+which session-doc
+```
 
-3. 확인:
-   ```bash
-   which session-doc
-   ```
-   경로가 표시되어야 함 (예: /usr/local/bin/session-doc)
+### 2-A. 이미 설치된 경우 - 자동 업데이트
+
+설치 경로에서 GitHub 최신 버전 확인 후 업데이트:
+
+```bash
+# 설치 경로 찾기
+TOOL_PATH=$(dirname $(dirname $(which session-doc)))
+cd $TOOL_PATH
+
+# 원격 변경사항 확인
+git fetch origin
+LOCAL=$(git rev-parse HEAD)
+REMOTE=$(git rev-parse origin/master)
+
+# 새 버전이 있으면 업데이트
+if [ "$LOCAL" != "$REMOTE" ]; then
+  echo "🔄 새 버전 발견, 업데이트 중..."
+  git pull origin master
+  npm install
+  npm run build
+  echo "✅ 업데이트 완료!"
+else
+  echo "✅ 이미 최신 버전입니다."
+fi
+```
+
+### 2-B. 설치되지 않은 경우 - 자동 설치
+
+```bash
+git clone https://github.com/daht-mad/session-doc.git /tmp/session-doc
+cd /tmp/session-doc
+npm install
+npm run build
+npm link
+```
+
+### 3. 확인
+
+```bash
+which session-doc
+```
+
+경로가 표시되어야 함 (예: /usr/local/bin/session-doc)
 
 ## 실행 단계
 
 사용자가 `/session-doc`를 실행하면:
 
-1. **설치 확인**: `which session-doc`로 도구가 설치되어 있는지 확인
-2. **미설치 시 안내**: 위의 설치 명령어를 실행하도록 안내
-3. **문서 생성**: `session-doc` 명령어 실행
-4. **결과 확인**: `docs/session-YYYY-MM-DD.md` 파일이 생성되었는지 확인
-5. **사용자에게 결과 보고**: 생성된 문서 경로와 통계 정보 표시
+1. **설치 확인** → 없으면 자동 설치, 있으면 업데이트 확인
+2. **문서 생성**: `session-doc` 명령어 실행
+3. **결과 확인**: `docs/session-YYYY-MM-DD.md` 파일이 생성되었는지 확인
+4. **사용자에게 결과 보고**: 생성된 문서 경로와 통계 정보 표시
 
 ## 출력 예시
 
