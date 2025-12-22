@@ -117,8 +117,8 @@ function isNoiseMessage(text: string): boolean {
     /^<command-/,
     /^<local-command/,
     /^mkdir -p \.claude\/commands/,
-    /^git clone.*claude-log/,
-    /^TOOL_PATH=.*claude-log/,
+    /^git clone.*log-update/,
+    /^TOOL_PATH=.*log-update/,
   ];
 
   return noisePatterns.some(pattern => pattern.test(text.trim()));

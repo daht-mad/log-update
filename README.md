@@ -1,4 +1,4 @@
-# claude-log
+# log-update
 
 Claude Code와의 대화 내역을 자동으로 마크다운 문서로 변환하는 도구입니다.
 
@@ -14,7 +14,7 @@ Claude Code와의 대화 내역을 자동으로 마크다운 문서로 변환하
 ### 방법 1: Claude Code 슬래시 커맨드로 설치 (권장)
 
 ```bash
-mkdir -p .claude/commands && curl -o .claude/commands/log.md https://raw.githubusercontent.com/daht-mad/claude-log/master/.claude/commands/log.md
+mkdir -p .claude/commands && curl -o .claude/commands/log.md https://raw.githubusercontent.com/daht-mad/log-update/master/.claude/commands/log.md
 ```
 
 설치 후 Claude Code에서:
@@ -25,8 +25,8 @@ mkdir -p .claude/commands && curl -o .claude/commands/log.md https://raw.githubu
 ### 방법 2: 직접 설치
 
 ```bash
-git clone https://github.com/daht-mad/claude-log.git
-cd claude-log
+git clone https://github.com/daht-mad/log-update.git
+cd log-update
 npm install
 npm run build
 npm link
@@ -44,7 +44,7 @@ npm link
 
 ```bash
 cd your-project
-claude-log
+log-update
 ```
 
 ## 출력 예시
@@ -100,8 +100,8 @@ your-project/
 
 ## 문제 해결
 
-**"command not found: claude-log"**
-→ npm link 재실행: `cd /path/to/claude-log && npm link`
+**"command not found: log-update"**
+→ npm link 재실행: `cd /path/to/log-update && npm link`
 
 **"대화 내역을 찾을 수 없습니다"**
 → Claude Code로 해당 프로젝트에서 대화를 나눈 적이 있는지 확인
@@ -114,4 +114,4 @@ MIT
 
 이슈 리포트와 풀 리퀘스트를 환영합니다!
 
-**GitHub**: [https://github.com/daht-mad/claude-log](https://github.com/daht-mad/claude-log)
+**GitHub**: [https://github.com/daht-mad/log-update](https://github.com/daht-mad/log-update)
