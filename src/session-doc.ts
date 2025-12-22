@@ -304,9 +304,6 @@ function generateMarkdown(sections: DocumentSection[], projectPath: string): str
     if (workflow) {
       md += `- ${workflow}\n`;
     }
-    if (section.assistantSummary) {
-      md += `- ${section.assistantSummary}\n`;
-    }
     md += `\n`;
 
     // 에러가 있으면 시행착오 및 배운 점 섹션 추가
