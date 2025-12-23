@@ -14,12 +14,12 @@ Claude Code와의 대화 내역을 자동으로 마크다운 문서로 변환하
 ### 방법 1: Claude Code 슬래시 커맨드로 설치 (권장)
 
 ```bash
-mkdir -p .claude/commands && curl -o .claude/commands/log.md https://raw.githubusercontent.com/daht-mad/log-update/master/.claude/commands/log.md
+mkdir -p .claude/commands && curl -o .claude/commands/log-update.md https://raw.githubusercontent.com/daht-mad/log-update/master/.claude/commands/log-update.md
 ```
 
 설치 후 Claude Code에서:
 ```
-/log
+/log-update
 ```
 
 ### 방법 2: Antigravity (Google AI IDE) 설치
@@ -43,7 +43,7 @@ npm link
 ### Claude Code로 사용
 
 ```
-/log
+/log-update
 ```
 
 ### CLI로 사용
