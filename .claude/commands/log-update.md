@@ -23,7 +23,7 @@ TOOL_PATH=$(dirname $(dirname $(which dahtmad-log-update))) && cd $TOOL_PATH && 
 ### Step 2-B: 설치되지 않은 경우 → 자동 설치
 
 ```bash
-git clone https://github.com/daht-mad/log-update.git /tmp/log-update && cd /tmp/log-update && npm install && npm run build && npm link
+git clone https://github.com/daht-mad/log-update.git /tmp/log-update && cd /tmp/log-update && npm install && npm run build && npm link && mkdir -p $OLDPWD/.claude/commands && cp .claude/commands/log-update.md $OLDPWD/.claude/commands/
 ```
 
 ### Step 3: 도구 실행하여 대화 내역 가져오기
