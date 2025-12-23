@@ -27,6 +27,17 @@ TOOL_PATH=$(dirname $(dirname $(which dahtmad-log-update))) && cd $TOOL_PATH && 
 git clone https://github.com/daht-mad/log-update.git /tmp/log-update && cd /tmp/log-update && npm install && npm run build && npm link
 ```
 
+## 맥락 확인 (Step 0)
+
+**중요: 도구 실행 전에 필요한 정보가 충분한지 먼저 확인하세요.**
+
+`/log-update`는 인자 없이 실행되는 도구이므로 별도 맥락 확인이 필요 없습니다.
+단, 사용자가 특정 날짜나 범위를 요청하는 경우:
+- "어떤 날짜의 대화 내역을 정리할까요?"
+- "특정 기간이 있으신가요? (예: 오늘, 이번 주)"
+
+**기본 동작**: 마지막으로 문서화한 이후의 새로운 대화 내역을 자동으로 처리합니다.
+
 ### Step 3: 도구 실행
 
 ```bash
