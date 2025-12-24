@@ -14,7 +14,7 @@ Claude Code와의 대화 내역을 자동으로 마크다운 문서로 변환하
 ### 방법 1: tar.gz 다운로드 (권장)
 
 ```bash
-curl -L https://github.com/daht-mad/log-update/raw/master/log-update.tar.gz | tar -xz -C .claude/skills/
+mkdir -p .claude/skills && curl -L https://github.com/daht-mad/log-update/raw/master/log-update.tar.gz | tar -xz -C .claude/skills/
 ```
 
 ### 방법 2: Git clone
