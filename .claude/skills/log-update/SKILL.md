@@ -1,5 +1,7 @@
 ---
 name: log-update
+version: 1.0.1
+repo: daht-mad/log-update
 description: |
   Claude Code 대화 내역을 마크다운 문서로 자동 정리하는 도구.
   다음과 같은 요청에 이 스킬을 사용하세요:
