@@ -1,22 +1,20 @@
 {
-  "name": "@daht-mad/log-update",
+  "name": "@anthropic/claude-code-skill-log-update",
   "version": "1.0.0",
-  "description": "클로드 코드와의 대화 내역을 자동으로 마크다운 문서로 변환하는 도구",
-  "main": "dist/log-update.js",
-  "bin": {
-    "dahtmad-log-update": "./bin/log-update.js"
-  },
+  "description": "Claude Code 대화 내역을 마크다운 문서로 자동 정리하는 스킬",
+  "main": ".claude/skills/log-update/scripts/log-update.js",
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
-    "prepublish": "npm run build"
+    "postinstall": "echo 'log-update 스킬이 설치되었습니다. SKILL.md를 확인하세요.'"
   },
-  "keywords": ["claude-code", "documentation", "log", "markdown", "automation"],
+  "keywords": ["claude-code", "skill", "documentation", "log", "markdown", "automation"],
   "author": "daht-mad",
   "license": "MIT",
-  "devDependencies": {
-    "@types/node": "^20.0.0",
-    "typescript": "^5.0.0"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/daht-mad/log-update.git"
   },
+  "files": [
+    ".claude/skills/log-update/**/*"
+  ],
   "dependencies": {}
 }

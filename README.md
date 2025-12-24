@@ -1,6 +1,6 @@
 # log-update
 
-Claude Code와의 대화 내역을 자동으로 마크다운 문서로 변환하는 도구입니다.
+Claude Code와의 대화 내역을 자동으로 마크다운 문서로 변환하는 스킬입니다.
 
 ## 기능
 
@@ -11,47 +11,33 @@ Claude Code와의 대화 내역을 자동으로 마크다운 문서로 변환하
 
 ## 설치
 
-### 방법 1: Claude Code 슬래시 커맨드로 설치 (권장)
+### npm으로 설치
 
 ```bash
-mkdir -p .claude/commands && curl -o .claude/commands/log-update.md https://raw.githubusercontent.com/daht-mad/log-update/master/.claude/commands/log-update.md
+npm install @anthropic/claude-code-skill-log-update
 ```
 
-설치 후 Claude Code에서:
-```
-/log-update
-```
-
-### 방법 2: Antigravity (Google AI IDE) 설치
+### 또는 GitHub에서 직접 설치
 
 ```bash
-mkdir -p .agent/rules && curl -o .agent/rules/log-update.md https://raw.githubusercontent.com/daht-mad/log-update/master/.agent/rules/log-update.md
+npm install github:daht-mad/log-update
 ```
 
-### 방법 3: 직접 설치
+설치 후 스킬 파일을 프로젝트에 복사:
 
 ```bash
-git clone https://github.com/daht-mad/log-update.git
-cd log-update
-npm install
-npm run build
-npm link
+cp -r node_modules/@anthropic/claude-code-skill-log-update/.claude .
 ```
 
 ## 사용법
 
-### Claude Code로 사용
+Claude Code에서:
 
-```
+```bash
 /log-update
 ```
 
-### CLI로 사용
-
-```bash
-cd your-project
-log-update
-```
+또는 "대화 내역 정리해줘", "작업 기록 문서화해줘" 등으로 요청하면 스킬이 자동으로 실행됩니다.
 
 ## 출력 예시
 
@@ -91,11 +77,17 @@ log-update
 
 ## 파일 구조
 
-```
+```text
 your-project/
+├── .claude/
+│   └── skills/
+│       └── log-update/
+│           ├── SKILL.md           # 스킬 정의
+│           └── scripts/
+│               └── log-update.js  # 실행 스크립트
 ├── docs/
-│   └── log-2025-12-22.md    # 생성된 문서
-└── .log-state.json          # 상태 추적 파일 (gitignore에 추가 권장)
+│   └── log-2025-12-22.md          # 생성된 문서
+└── .log-state.json                # 상태 추적 파일
 ```
 
 ## 사용 시나리오
@@ -106,11 +98,11 @@ your-project/
 
 ## 문제 해결
 
-**"command not found: log-update"**
-→ npm link 재실행: `cd /path/to/log-update && npm link`
-
 **"대화 내역을 찾을 수 없습니다"**
 → Claude Code로 해당 프로젝트에서 대화를 나눈 적이 있는지 확인
+
+**"새로운 대화 내역이 없습니다"**
+→ 이미 모든 내역이 문서화됨
 
 ## 라이선스
 

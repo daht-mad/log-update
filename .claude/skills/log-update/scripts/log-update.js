@@ -1,30 +1,7 @@
 #!/usr/bin/env node
-import * as fs from 'fs';
-import * as path from 'path';
-import * as os from 'os';
-
-interface Message {
-  role: 'user' | 'assistant';
-  content: any;
-  timestamp?: string;
-  type?: string;
-  toolUseResult?: any;
-  message?: any;
-}
-
-interface StateTracker {
-  lastProcessedTimestamp: string;
-  totalSessions: number;
-}
-
-interface Session {
-  userRequests: string[];
-  claudeActions: string[];
-  errors: string[];
-  filesModified: string[];
-  toolsUsed: string[];
-  timestamp: string;
-}
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
 
 const CLAUDE_HOME = path.join(os.homedir(), '.claude');
 const STATE_FILE = '.log-state.json';
@@ -32,7 +9,7 @@ const STATE_FILE = '.log-state.json';
 /**
  * 현재 프로젝트의 대화 세션 파일 경로를 찾습니다
  */
-function findProjectSessionFiles(projectPath: string): string[] {
+function findProjectSessionFiles(projectPath) {
   const normalizedPath = projectPath.replace(/[/.]/g, '-');
   const projectDir = path.join(CLAUDE_HOME, 'projects', normalizedPath);
 
@@ -52,8 +29,8 @@ function findProjectSessionFiles(projectPath: string): string[] {
 /**
  * JSONL 파일에서 메시지들을 읽어옵니다
  */
-function readMessages(filePath: string, lastTimestamp?: string): Message[] {
-  const messages: Message[] = [];
+function readMessages(filePath, lastTimestamp) {
+  const messages = [];
   const content = fs.readFileSync(filePath, 'utf-8');
   const lines = content.trim().split('\n').filter(line => line.trim());
 
@@ -81,7 +58,7 @@ function readMessages(filePath: string, lastTimestamp?: string): Message[] {
 /**
  * 시스템 태그를 제거합니다
  */
-function removeSystemTags(text: string): string {
+function removeSystemTags(text) {
   const patterns = [
     /<ide_opened_file>[\s\S]*?<\/ide_opened_file>/g,
     /<ide_selection>[\s\S]*?<\/ide_selection>/g,
@@ -106,7 +83,7 @@ function removeSystemTags(text: string): string {
 /**
  * 무의미한 메시지인지 확인합니다
  */
-function isNoiseMessage(text: string): boolean {
+function isNoiseMessage(text) {
   if (!text || text.length === 0) return true;
 
   const noisePatterns = [
@@ -127,7 +104,7 @@ function isNoiseMessage(text: string): boolean {
 /**
  * 유효한 사용자 요청인지 확인합니다
  */
-function isValidUserRequest(text: string): boolean {
+function isValidUserRequest(text) {
   if (!text || text.length < 2) return false;
 
   const invalidPatterns = [
@@ -135,7 +112,7 @@ function isValidUserRequest(text: string): boolean {
     /^<command-/,
     /^<local-command/,
     /^Caveat:/,
-    /^#\s*\/[\w-]+\s*-/,  // 슬래시 커맨드 설명 (예: # /session-doc - ...)
+    /^#\s*\/[\w-]+\s*-/,
   ];
 
   return !invalidPatterns.some(pattern => pattern.test(text.trim()));
@@ -144,7 +121,7 @@ function isValidUserRequest(text: string): boolean {
 /**
  * 메시지에서 텍스트 콘텐츠를 추출합니다
  */
-function extractTextContent(message: Message): string | undefined {
+function extractTextContent(message) {
   const content = message.message?.content || message.content;
 
   if (typeof content === 'string') {
@@ -168,17 +145,17 @@ function extractTextContent(message: Message): string | undefined {
 /**
  * 파일 경로에서 파일명만 추출합니다
  */
-function getFileName(filePath: string): string {
+function getFileName(filePath) {
   return path.basename(filePath);
 }
 
 /**
  * 도구 호출에서 정보를 추출합니다
  */
-function extractToolInfo(message: Message): { tools: string[], files: string[], errors: string[] } {
-  const tools: string[] = [];
-  const files: string[] = [];
-  const errors: string[] = [];
+function extractToolInfo(message) {
+  const tools = [];
+  const files = [];
+  const errors = [];
 
   if (message.message?.content && Array.isArray(message.message.content)) {
     for (const item of message.message.content) {
@@ -210,51 +187,11 @@ function extractToolInfo(message: Message): { tools: string[], files: string[], 
 }
 
 /**
- * 도구 사용을 비개발자 친화적으로 변환합니다
- */
-function translateToolUsage(tools: string[], files: string[]): string[] {
-  const actions: string[] = [];
-  const toolActions: Record<string, string> = {
-    'Read': '파일 확인',
-    'Write': '파일 생성',
-    'Edit': '파일 수정',
-    'Bash': '명령어 실행',
-    'Glob': '파일 검색',
-    'Grep': '코드 검색',
-    'Task': '하위 작업 수행',
-    'WebFetch': '웹 정보 조회',
-    'WebSearch': '웹 검색',
-    'AskUserQuestion': '사용자에게 질문',
-    'TodoWrite': '작업 목록 관리',
-  };
-
-  const usedActions = new Set<string>();
-
-  for (const tool of tools) {
-    const action = toolActions[tool] || tool;
-    if (!usedActions.has(action)) {
-      usedActions.add(action);
-
-      if ((tool === 'Read' || tool === 'Write' || tool === 'Edit') && files.length > 0) {
-        const fileList = files.length > 3
-          ? `${files.slice(0, 3).join(', ')} 외 ${files.length - 3}개`
-          : files.join(', ');
-        actions.push(`${action}: ${fileList}`);
-      } else {
-        actions.push(action);
-      }
-    }
-  }
-
-  return actions;
-}
-
-/**
  * 메시지들을 세션으로 그룹화합니다
  */
-function groupIntoSessions(messages: Message[]): Session[] {
-  const sessions: Session[] = [];
-  let currentSession: Session | null = null;
+function groupIntoSessions(messages) {
+  const sessions = [];
+  let currentSession = null;
 
   for (const msg of messages) {
     const isUser = msg.type === 'user' || msg.message?.role === 'user';
@@ -266,12 +203,10 @@ function groupIntoSessions(messages: Message[]): Session[] {
     if (!content) continue;
 
     if (isUser) {
-      // 유효한 사용자 요청인지 확인
       if (!isValidUserRequest(content)) {
         continue;
       }
 
-      // 새로운 사용자 메시지가 오면 이전 세션 저장하고 새 세션 시작
       if (currentSession && currentSession.userRequests.length > 0) {
         sessions.push(currentSession);
       }
@@ -295,7 +230,6 @@ function groupIntoSessions(messages: Message[]): Session[] {
       currentSession.filesModified.push(...files);
       currentSession.errors.push(...errors);
 
-      // Claude의 텍스트 응답 (짧게)
       if (content && !isNoiseMessage(content) && content.length > 10) {
         const summary = content.length > 300 ? content.substring(0, 297) + '...' : content;
         if (!currentSession.claudeActions.includes(summary)) {
@@ -305,7 +239,6 @@ function groupIntoSessions(messages: Message[]): Session[] {
     }
   }
 
-  // 마지막 세션 추가
   if (currentSession && currentSession.userRequests.length > 0) {
     sessions.push(currentSession);
   }
@@ -316,7 +249,7 @@ function groupIntoSessions(messages: Message[]): Session[] {
 /**
  * 원시 대화 데이터를 JSON 형식으로 출력합니다
  */
-function outputRawData(sessions: Session[]): void {
+function outputRawData(sessions) {
   const rawData = sessions.map((session, index) => ({
     index: index + 1,
     timestamp: session.timestamp,
@@ -337,7 +270,7 @@ function outputRawData(sessions: Session[]): void {
 /**
  * 상태를 로드합니다
  */
-function loadState(projectPath: string): StateTracker | null {
+function loadState(projectPath) {
   const stateFile = path.join(projectPath, STATE_FILE);
 
   if (fs.existsSync(stateFile)) {
@@ -353,47 +286,42 @@ function loadState(projectPath: string): StateTracker | null {
 }
 
 /**
- * 상태를 저장합니다
+ * 메인 함수
  */
-function saveState(projectPath: string, state: StateTracker): void {
-  const stateFile = path.join(projectPath, STATE_FILE);
-  fs.writeFileSync(stateFile, JSON.stringify(state, null, 2));
-}
-
-export async function main(_args: string[]): Promise<void> {
+function main() {
   const projectPath = process.cwd();
   const state = loadState(projectPath);
   const lastTimestamp = state?.lastProcessedTimestamp;
   const previousTotal = state?.totalSessions || 0;
 
-  console.log('📝 Claude Code 세션 문서화 도구\n');
+  console.log('log-update - Claude Code 세션 문서화 도구\n');
   console.log(`프로젝트 경로: ${projectPath}`);
 
   if (lastTimestamp) {
-    console.log(`📌 마지막 처리 시점: ${new Date(lastTimestamp).toLocaleString()}`);
-    console.log(`📊 이전 처리 개수: ${previousTotal}개`);
+    console.log(`마지막 처리 시점: ${new Date(lastTimestamp).toLocaleString()}`);
+    console.log(`이전 처리 개수: ${previousTotal}개`);
   }
 
   const sessionFiles = findProjectSessionFiles(projectPath);
 
   if (sessionFiles.length === 0) {
-    console.error('\n❌ 대화 내역을 찾을 수 없습니다.');
-    console.error('   Claude Code로 이 프로젝트에서 대화를 나눈 적이 있는지 확인하세요.');
+    console.error('\n대화 내역을 찾을 수 없습니다.');
+    console.error('Claude Code로 이 프로젝트에서 대화를 나눈 적이 있는지 확인하세요.');
     process.exit(1);
   }
 
-  console.log(`✓ ${sessionFiles.length}개의 세션 파일을 찾았습니다.`);
+  console.log(`${sessionFiles.length}개의 세션 파일을 찾았습니다.`);
 
-  let allMessages: Message[] = [];
+  let allMessages = [];
   for (const file of sessionFiles) {
     const messages = readMessages(file, lastTimestamp);
     allMessages.push(...messages);
   }
 
-  console.log(`✓ ${allMessages.length}개의 새로운 메시지를 읽었습니다.`);
+  console.log(`${allMessages.length}개의 새로운 메시지를 읽었습니다.`);
 
   if (allMessages.length === 0) {
-    console.log('\nℹ️ 새로운 대화 내역이 없습니다.');
+    console.log('\n새로운 대화 내역이 없습니다.');
     process.exit(0);
   }
 
@@ -407,25 +335,19 @@ export async function main(_args: string[]): Promise<void> {
   // 세션으로 그룹화
   const sessions = groupIntoSessions(allMessages);
 
-  console.log(`✓ ${sessions.length}개의 대화 세션으로 그룹화했습니다.`);
+  console.log(`${sessions.length}개의 대화 세션으로 그룹화했습니다.`);
 
   if (sessions.length === 0) {
-    console.log('\nℹ️ 정리할 대화 내용이 없습니다.');
+    console.log('\n정리할 대화 내용이 없습니다.');
     process.exit(0);
   }
 
   // 원시 데이터 출력 (Claude가 후처리할 수 있도록)
   outputRawData(sessions);
 
-  console.log(`\n📊 통계:`);
+  console.log(`\n통계:`);
   console.log(`   - 추출된 세션: ${sessions.length}개`);
-  console.log('\n✨ 데이터 추출 완료! Claude가 이 데이터를 분석하여 문서를 생성합니다.');
+  console.log('\n데이터 추출 완료! Claude가 이 데이터를 분석하여 문서를 생성합니다.');
 }
 
-// CLI 진입점
-if (require.main === module) {
-  main(process.argv.slice(2)).catch(err => {
-    console.error('에러 발생:', err.message);
-    process.exit(1);
-  });
-}
+main();
