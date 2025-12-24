@@ -1,6 +1,6 @@
 ---
 name: log-update
-version: 1.0.1
+version: 1.0.2
 repo: daht-mad/log-update
 description: |
   Claude Code 대화 내역을 마크다운 문서로 자동 정리하는 도구.
@@ -14,20 +14,6 @@ description: |
 # log-update
 
 Claude Code와의 대화 내역을 의미 단위로 정리하여 마크다운 문서로 저장합니다.
-
-## 비개발자 가이드
-
-**설치 (터미널에서 한 줄 실행 후 Claude Code 재시작):**
-
-```bash
-mkdir -p .claude/skills && curl -L https://github.com/daht-mad/log-update/archive/refs/heads/master.tar.gz | tar -xz -C /tmp && mv /tmp/log-update-master .claude/skills/log-update
-```
-
-**사용:** Claude에게 "오늘 작업 내역 정리해줘" 라고 말하세요.
-
-**결과:** `docs/log-YYYY-MM-DD.md` 파일에 작업 기록이 저장됩니다.
-
----
 
 ## 실행
 
@@ -71,14 +57,10 @@ npm install typescript @types/node && npm run build && node scripts/log-update.j
 
 실행 스크립트: [log-update.js](scripts/log-update.js)
 
-## 자동 업데이트 & 기여
+## 자동 업데이트
 
-스킬 실행 전 업데이트 확인 및 버그 수정 기여 (create-tool 필요):
+스킬 실행 전 업데이트 확인:
 
 ```bash
-# 업데이트 확인
-python3 .claude/skills/create-tool/scripts/check_update.py .claude/skills/log-update --auto
-
-# 버그 수정 PR 제출
-python3 .claude/skills/create-tool/scripts/contribute_fix.py .claude/skills/log-update --message "버그 설명"
+python3 scripts/check_update.py --auto --quiet
 ```
