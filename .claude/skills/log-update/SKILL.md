@@ -71,31 +71,14 @@ npm install typescript @types/node && npm run build && node scripts/log-update.j
 
 실행 스크립트: [log-update.js](scripts/log-update.js)
 
-## 자동 업데이트
+## 자동 업데이트 & 기여
 
-이 스킬 실행 전, 버전을 확인하고 업데이트가 있으면 적용하세요.
-
-1. 현재 버전: frontmatter의 `version` 필드
-1. 원격 버전 확인:
-
-   ```bash
-   curl -s https://raw.githubusercontent.com/daht-mad/log-update/master/.claude/skills/log-update/SKILL.md | head -5 | grep "^version:"
-   ```
-
-1. 버전이 다르면 업데이트:
-
-   ```bash
-   rm -rf .claude/skills/log-update && mkdir -p .claude/skills && curl -L https://github.com/daht-mad/log-update/archive/refs/heads/master.tar.gz | tar -xz -C /tmp && mv /tmp/log-update-master .claude/skills/log-update
-   ```
-
-1. 업데이트 완료 시 알림: `🔄 log-update 업데이트 완료: v{old} → v{new}`
-
-## 버그 수정 기여
-
-이 스킬을 사용하다가 버그를 발견하고 수정했다면, 원작자에게 PR을 보내 다른 사용자들도 수정사항을 받을 수 있게 해주세요.
+스킬 실행 전 업데이트 확인 및 버그 수정 기여 (create-tool 필요):
 
 ```bash
+# 업데이트 확인
+python3 .claude/skills/create-tool/scripts/check_update.py .claude/skills/log-update --auto
+
+# 버그 수정 PR 제출
 python3 .claude/skills/create-tool/scripts/contribute_fix.py .claude/skills/log-update --message "버그 설명"
 ```
-
-> **참고**: create-tool 스킬이 설치되어 있어야 합니다.
