@@ -15,96 +15,87 @@ description: |
 
 Claude Code와의 대화 내역을 의미 단위로 정리하여 마크다운 문서로 저장합니다.
 
-## 의존성 설치 (최초 1회)
+## 비개발자 가이드
+
+**설치 (터미널에서 한 줄 실행 후 Claude Code 재시작):**
 
 ```bash
-npm install typescript @types/node && npm run build
+mkdir -p .claude/skills && curl -L https://github.com/daht-mad/log-update/archive/refs/heads/master.tar.gz | tar -xz -C /tmp && mv /tmp/log-update-master .claude/skills/log-update
 ```
 
-## 사용법
+**사용:** Claude에게 "오늘 작업 내역 정리해줘" 라고 말하세요.
+
+**결과:** `docs/log-YYYY-MM-DD.md` 파일에 작업 기록이 저장됩니다.
+
+---
+
+## 실행
+
+의존성 설치 후 스크립트 실행:
 
 ```bash
-node scripts/log-update.js
+npm install typescript @types/node && npm run build && node scripts/log-update.js
 ```
 
 ## 동작 순서
 
-### Step 1: 도구 실행
+1. **도구 실행**: `node scripts/log-update.js`
+2. **대화 내역 분석**: 의미 단위로 그룹화
+3. **파일 저장**: `docs/log-YYYY-MM-DD.md`
 
-```bash
-node scripts/log-update.js
-```
+## 정리 규칙
 
-### Step 2: 대화 내역을 의미 단위로 정리
+- **의미 단위로 그룹화**: 연관된 대화를 하나의 작업으로 묶음
+- **작업 제목**: 핵심을 설명하는 짧은 제목
+- **비개발자 친화적 표현**: 기술 용어를 쉽게 풀어서 설명
+- **파일명 포함**: 수정된 파일명 명시 (3개 초과시 "외 N개")
 
-도구가 출력한 대화 내역을 분석하여 **의미 단위로 묶어서** 문서를 작성합니다.
-
-#### 정리 규칙
-
-1. **의미 단위로 그룹화**: 연관된 대화들을 하나의 작업으로 묶습니다
-   - 예: "API 만들어줘" → "수정해줘" → "테스트해봐" = 하나의 "API 구현" 작업
-   - 새로운 주제가 시작되면 새 작업으로 분리
-
-2. **작업 제목**: 해당 작업의 핵심을 설명하는 짧은 제목
-   - 좋은 예: "결제 API 엔드포인트 구현", "로그인 버그 수정"
-   - 나쁜 예: "수정해줘", "했어"
-
-3. **비개발자 친화적 표현**: 기술 용어를 쉽게 풀어서 설명
-   - Write/Edit → "파일 생성/수정"
-   - Bash(npm run build) → "프로젝트 빌드"
-   - git commit → "변경사항 저장"
-
-4. **파일명 포함**: 수정된 파일명을 명시 (3개 초과시 "외 N개")
-
-#### 출력 형식
+## 출력 형식
 
 ```markdown
 # Claude Code 작업 기록
 
-> 이 문서는 Claude Code와의 대화 내역을 자동으로 정리한 것입니다.
-
 ## YYYY-MM-DD
 
-### 1. 작업 제목 (핵심을 설명하는 짧은 문장)
+### 1. 작업 제목
 
 **수행된 작업:**
 - 파일 확인: config.ts, index.ts
-- 파일 수정: api.ts, routes.ts
-- 프로젝트 빌드
+- 파일 수정: api.ts
 
 **결과:**
-작업 결과를 1-2문장으로 요약
-
----
-
-### 2. 다음 작업 제목
-
-...
+작업 결과 요약
 ```
 
-### Step 3: 파일 저장
+## 스크립트
 
-정리한 내용을 `docs/log-YYYY-MM-DD.md` 파일에 저장합니다.
+실행 스크립트: [log-update.js](scripts/log-update.js)
 
-기존 파일이 있으면 새 내용을 **아래에 추가**합니다.
+## 자동 업데이트
 
-## 주요 기능
+이 스킬 실행 전, 버전을 확인하고 업데이트가 있으면 적용하세요.
 
-- 마지막 처리 시점 이후의 새로운 대화만 자동 추출
-- 세션별 그룹화 및 도구 사용 내역 분석
-- 비개발자도 이해할 수 있는 친화적 표현으로 변환
-- `.log-state.json`으로 상태 추적
+1. 현재 버전: frontmatter의 `version` 필드
+1. 원격 버전 확인:
 
-## 파일 구조
+   ```bash
+   curl -s https://raw.githubusercontent.com/daht-mad/log-update/master/.claude/skills/log-update/SKILL.md | head -5 | grep "^version:"
+   ```
 
+1. 버전이 다르면 업데이트:
+
+   ```bash
+   rm -rf .claude/skills/log-update && mkdir -p .claude/skills && curl -L https://github.com/daht-mad/log-update/archive/refs/heads/master.tar.gz | tar -xz -C /tmp && mv /tmp/log-update-master .claude/skills/log-update
+   ```
+
+1. 업데이트 완료 시 알림: `🔄 log-update 업데이트 완료: v{old} → v{new}`
+
+## 버그 수정 기여
+
+이 스킬을 사용하다가 버그를 발견하고 수정했다면, 원작자에게 PR을 보내 다른 사용자들도 수정사항을 받을 수 있게 해주세요.
+
+```bash
+python3 .claude/skills/create-tool/scripts/contribute_fix.py .claude/skills/log-update --message "버그 설명"
 ```
-your-project/
-├── docs/
-│   └── log-2025-12-22.md    # 생성된 문서
-└── .log-state.json          # 상태 추적 파일
-```
 
-## 에러 처리
-
-- **"대화 내역을 찾을 수 없습니다"**: Claude Code로 대화한 적 있는지 확인
-- **"새로운 대화 내역이 없습니다"**: 이미 모든 내역이 문서화됨
+> **참고**: create-tool 스킬이 설치되어 있어야 합니다.
