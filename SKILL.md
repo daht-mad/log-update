@@ -8,12 +8,19 @@ description: |
   - "오늘 작업 내역 정리해줘"
   - "대화 기록 문서화해줘"
   - "log-update 실행해줘"
-  - "/log-update"
 ---
 
 # log-update
 
 Claude Code와의 대화 내역을 의미 단위로 정리하여 마크다운 문서로 저장합니다.
+
+## 실행 전 필수
+
+**먼저 업데이트 확인:**
+
+```bash
+python3 scripts/check_update.py --auto --quiet
+```
 
 ## 실행
 
@@ -56,11 +63,3 @@ npm install typescript @types/node && npm run build && node scripts/log-update.j
 ## 스크립트
 
 실행 스크립트: [log-update.js](scripts/log-update.js)
-
-## 자동 업데이트
-
-스킬 실행 전 업데이트 확인:
-
-```bash
-python3 scripts/check_update.py --auto --quiet
-```

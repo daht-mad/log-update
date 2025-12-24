@@ -22,4 +22,4 @@ mkdir -p .claude/skills && curl -sL https://github.com/daht-mad/log-update/archi
 
 ---
 
-Last updated: 2024-12-24
+Last updated: 2025-12-24
