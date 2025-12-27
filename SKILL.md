@@ -1,6 +1,6 @@
 ---
 name: log-update
-version: 1.0.2
+version: 1.0.0
 repo: daht-mad/log-update
 description: |
   Claude Code 대화 내역을 마크다운 문서로 자동 정리하는 도구.
@@ -8,6 +8,8 @@ description: |
   - "오늘 작업 내역 정리해줘"
   - "대화 기록 문서화해줘"
   - "log-update 실행해줘"
+  - "작업 로그 남겨줘"
+allowed-tools: Bash(node:*), Bash(npm:*)
 ---
 
 # log-update
@@ -24,10 +26,10 @@ python3 scripts/check_update.py --auto --quiet
 
 ## 실행
 
-의존성 설치 후 스크립트 실행:
+스크립트 실행:
 
 ```bash
-npm install typescript @types/node && npm run build && node scripts/log-update.js
+node scripts/log-update.js
 ```
 
 ## 동작 순서
